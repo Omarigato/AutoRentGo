@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.core.security import get_current_owner, get_current_user_optional
 from app.db.session import get_db
-from app.models.entities import Car, Image, User, AppSetting, Dictionary
+from app.models import Car, Image, User, AppSetting, Dictionary
 from app.schemas.cars import CarResponse
 from sqlalchemy import or_, String, cast
 from sqlalchemy.orm import aliased
@@ -46,18 +46,8 @@ def list_cars(
         Car.delete_date.is_(None),
     )
     
-    # Filter by city_id from request, or fallback to current_user
-    filter_city_id = city_id
-    if filter_city_id is None and city_name:
-        city_record = db.query(Dictionary).filter(Dictionary.name == city_name, Dictionary.type == 'CITY').first()
-        if city_record:
-            filter_city_id = city_record.id
-            
-    if filter_city_id is None and current_user and getattr(current_user, "city_id", None) is not None:
-        filter_city_id = current_user.city_id
-        
-    if filter_city_id:
-        query = query.filter(Car.city_id == filter_city_id)
+    if city_id:
+        query = query.filter(Car.city_id == city_id)
         
     if marka_id:
         query = query.filter(Car.vehicle_mark_id == marka_id)
@@ -117,7 +107,7 @@ def list_cars(
             "car_class": c.car_class.name if c.car_class else None,
             "color": c.color.name if c.color else None,
             "transmission": c.transmission.name if c.transmission else None,
-            "images": [{"url": img.url} for img in c.images],
+            "images": [{"url": img.url} for img in c.car_images],
             "city": c.city.name if c.city else "Алматы",
             "author": {
                 "name": c.author.name if c.author else "Без имени",
@@ -217,7 +207,7 @@ async def create_car(
     # Save photos to Cloudinary
     if images:
         for idx, photo in enumerate(images):
-            url, public_id = CloudinaryService.upload_image(photo.file, folder="autopro/cars")
+            url, public_id = CloudinaryService.upload_image(photo.file, folder="autorentgo/cars")
             if url:
                 img_record = Image(
                     entity_id=car.id,
@@ -299,7 +289,7 @@ def get_my_cars(
             "views_count": c.views_count,
             "create_date": c.create_date.isoformat(),
             "update_date": c.update_date.isoformat() if c.update_date else None,
-            "images": [{"url": img.url} for img in c.images],
+            "images": [{"url": img.url} for img in c.car_images],
         })
 
     return create_response(data=result, lang=request.state.lang)
@@ -368,7 +358,7 @@ def get_car(
             "address": car.author.address if car.author else None,
             "phone_number": car.author.phone_number if car.author else None,
         },
-        "images": [{"url": img.url, "id": img.id} for img in car.images],
+        "images": [{"url": img.url, "id": img.id} for img in car.car_images],
         "create_date": car.create_date.isoformat() if car.create_date else None,
         "update_date": car.update_date.isoformat() if car.update_date else None,
     }, lang=request.state.lang)
@@ -461,9 +451,9 @@ async def update_car(
     # Если загружены новые фото
     if images:
         for idx, photo in enumerate(images):
-            url, public_id = CloudinaryService.upload_image(photo.file, folder="autopro/cars")
+            url, public_id = CloudinaryService.upload_image(photo.file, folder="autorentgo/cars")
             if url:
-                pos = len(car.images) + idx
+                pos = len(car.car_images) + idx
                 img_record = Image(
                     entity_id=car.id,
                     entity_type='CAR',

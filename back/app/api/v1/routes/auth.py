@@ -14,16 +14,22 @@ from app.core.security import (
     verify_password,
 )
 from app.db.session import get_db
-from app.models.entities import CarOwner, User, OTPVerification, Image, Dictionary
+from app.models import CarOwner, User, OTPVerification, Image, Dictionary
 from app.schemas.auth import OwnerLoginRequest, OwnerRegisterRequest, Token, UserResponse
 from app.core.responses import create_response
 from pydantic import BaseModel, EmailStr
 import re
-
-from app.services.whatsapp_service import whatsapp_service
 from app.services.email_service import email_service
+from app.services.whatsapp_service import whatsapp_service
 
 router = APIRouter()
+
+def normalize_login(login: str) -> str:
+    """Нормализует логин: для телефонов удаляет всё, кроме цифр и плюса."""
+    if login and "@" not in login:
+        # Оставляем только цифры и плюс
+        return re.sub(r"[^\d+]", "", login)
+    return login
 
 def is_password_strong(password: str) -> bool:
     """
@@ -77,10 +83,11 @@ def login(
     Вход по паролю ИЛИ по одноразовому коду (OTP).
     Идентификатором может быть номер телефона или email.
     """
+    login_id = normalize_login(payload.login)
     user = db.query(User).filter(
         or_(
-            User.phone_number == payload.login,
-            User.email == payload.login,
+            User.phone_number == login_id,
+            User.email == login_id,
         )
     ).first()
 
@@ -90,11 +97,15 @@ def login(
     # Вход по OTP
     if payload.otp_code:
         # Проверяем код для указанного идентификатора (телефон или email).
+        # Проверяем как по нормализованному, так и по изначальному вводу,
+        # так как OTP мог быть запрошен в любом из форматов.
         verification = db.query(OTPVerification).filter(
             or_(
+                OTPVerification.target == login_id,
                 OTPVerification.target == payload.login,
-                OTPVerification.target == user.phone_number,
-                OTPVerification.target == user.email,
+                OTPVerification.target == (user.phone_number if user else None),
+                OTPVerification.target == (normalize_login(user.phone_number) if user and user.phone_number else None),
+                OTPVerification.target == (user.email if user else None),
             ),
             OTPVerification.code == payload.otp_code,
             OTPVerification.is_used == False,
@@ -254,10 +265,11 @@ async def request_otp(
     Отправка одноразового кода (OTP) для входа или восстановления пароля.
     Используется с телефоном или email.
     """
+    target = normalize_login(payload.target)
     user = db.query(User).filter(
         or_(
-            User.phone_number == payload.target,
-            User.email == payload.target,
+            User.phone_number == target,
+            User.email == target,
         )
     ).first()
 
@@ -275,7 +287,7 @@ async def request_otp(
     otp_type = payload.type if payload.type else ("login" if user else "register")
 
     verification = OTPVerification(
-        target=payload.target,
+        target=target,
         code=otp,
         type=otp_type,
         expires_at=datetime.utcnow() + timedelta(minutes=5),

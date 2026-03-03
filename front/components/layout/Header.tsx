@@ -98,7 +98,7 @@ export function Header() {
           />
           <span className="inline-flex items-baseline gap-0">
             <span className="font-bold text-xl sm:text-2xl tracking-tight text-black">Auto</span>
-            <span className="font-bold text-xl sm:text-2xl tracking-tight text-slate-500">Pro</span>
+            <span className="font-bold text-xl sm:text-2xl tracking-tight text-slate-500">RentGo</span>
           </span>
         </Link>
 

@@ -11,11 +11,11 @@ export function Footer() {
       <div className="container grid grid-cols-1 md:grid-cols-4 gap-8 items-start">
         <div className="space-y-4 md:col-span-2">
           <div className="flex items-center gap-2 h-6 mb-4">
-            <Image src="/logo-light.png" alt="Logo" width={220} height={60}  className="h-10 w-auto sm:h-12" />
+            <Image src="/logo-light.png" alt="Logo" width={220} height={60} className="h-10 w-auto sm:h-12" />
             <span className="inline-flex items-baseline gap-0">
-            <span className="font-bold text-xl sm:text-2xl tracking-tight text-black">Auto</span>
-            <span className="font-bold text-xl sm:text-2xl tracking-tight text-slate-500">Pro</span>
-          </span>
+              <span className="font-bold text-xl sm:text-2xl tracking-tight text-black">AutoRent</span>
+              <span className="font-bold text-xl sm:text-2xl tracking-tight text-slate-500">Go</span>
+            </span>
           </div>
           <p className="text-sm max-w-sm leading-relaxed">
             Ваш надежный партнер в мире аренды автомобилей. Мы предлагаем лучшие условия и широкий выбор транспорта.
@@ -61,12 +61,12 @@ export function Footer() {
               </svg>
             </Link>
           </div>
-          <p className="text-sm">support@autopro.kz</p>
+          <p className="text-sm">support@autorentgo.kz</p>
         </div>
       </div>
       <div className="container mt-12 pt-8 border-t border-slate-200 text-center text-xs">
-        &copy; {new Date().getFullYear()} AutoPro. All rights reserved.
+        &copy; {new Date().getFullYear()} AutoRentGo. All rights reserved.
       </div>
-    </footer>
+    </footer >
   );
 }

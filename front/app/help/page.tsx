@@ -49,7 +49,7 @@ export default function HelpPage() {
                     </p>
                     <div className="space-y-2 text-slate-600">
                         <p>📞 Телефон: +7 (777) 123-45-67</p>
-                        <p>📧 Email: support@autopro.kz</p>
+                        <p>📧 Email: support@autorentgo.kz</p>
                         <p>⏰ Время работы: Пн-Пт 9:00-18:00</p>
                     </div>
                 </section>

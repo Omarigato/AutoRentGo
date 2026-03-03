@@ -5,7 +5,7 @@ export default function AboutPage() {
 
             <div className="prose prose-slate max-w-none space-y-6">
                 <p className="text-lg text-slate-600">
-                    AutoPro — это современная платформа для продажи и покупки автомобилей в Казахстане.
+                    AutoRentGo — это современная платформа для продажи и покупки автомобилей в Казахстане.
                     Мы создали удобный сервис, который помогает тысячам людей найти автомобиль своей мечты.
                 </p>
 
@@ -30,7 +30,7 @@ export default function AboutPage() {
                 </p>
                 <ul className="list-none space-y-2 text-slate-600">
                     <li>📞 Телефон: +7 (777) 123-45-67</li>
-                    <li>📧 Email: support@autopro.kz</li>
+                    <li>📧 Email: support@autorentgo.kz</li>
                     <li>📍 Адрес: г. Алматы, пр. Абая 150</li>
                 </ul>
             </div>

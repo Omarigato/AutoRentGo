@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_
 
 from app.db.session import get_db
-from app.models.entities import (
+from app.models import (
     User,
     Car,
     Application,
@@ -18,7 +18,6 @@ from app.models.entities import (
     SubscriptionPlan,
     AppSetting,
     OTPVerification,
-
     Review,
 )
 from app.core.security import get_current_user, get_password_hash
@@ -518,7 +517,7 @@ def list_applications_admin(
             "create_date": app.create_date.isoformat() if app.create_date else None,
             "views_count": app.views_count,
             "matching_cars_count": ac_count,
-            "images": [{"url": img.url} for img in app.images]
+            "images": [{"url": img.url} for img in app.application_images]
         })
     return create_response(data={"items": result, "total": total})
 
@@ -607,7 +606,7 @@ def get_car_detail_admin(car_id: int, db: Session = Depends(get_db), admin: User
     return create_response(data={
         "id": car.id,
         "name": car.name,
-        "images": [{"url": i.url, "id": i.id} for i in car.images],
+        "images": [{"url": i.url, "id": i.id} for i in car.car_images],
         "status": car.status,
         "views": car.views_count,
         "create_date": car.create_date.isoformat() if car.create_date else None,

@@ -115,7 +115,7 @@ export default function RegisterPage() {
     <div className="space-y-6">
       <div className="space-y-2 text-center">
         <h1 className="text-3xl font-bold">Создать аккаунт</h1>
-        <p className="text-muted-foreground">Присоединяйтесь к сообществу AutoPro</p>
+        <p className="text-muted-foreground">Присоединяйтесь к сообществу AutoRentGo</p>
       </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

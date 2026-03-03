@@ -38,6 +38,8 @@ import {
     SheetFooter,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { DictionarySelect } from "@/components/shared/DictionarySelect";
+
 
 export default function CatalogPage() {
     const [filterCategory, setFilterCategory] = useState<string | null>(null);
@@ -183,7 +185,7 @@ export default function CatalogPage() {
                                         <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Категория</label>
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <button className="flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-sm font-bold bg-slate-50 border border-slate-200">
+                                                <button className="flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-sm font-bold bg-white border border-slate-200 shadow-sm">
                                                     <span className="truncate">
                                                         {filterCategory === null ? "Любая" : (dictionaries?.categories?.find((c: any) => c.id.toString() === filterCategory)?.name ?? "Выбрано")}
                                                     </span>
@@ -201,57 +203,30 @@ export default function CatalogPage() {
                                         </DropdownMenu>
                                     </div>
 
-                                    <div>
-                                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Марка</label>
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <button className="flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-sm font-bold bg-slate-50 border border-slate-200">
-                                                    <span className="truncate">
-                                                        {filterMarka === null ? "Любая" : (dictionaries?.marks?.find((c: any) => c.id.toString() === filterMarka)?.name ?? "Выбрано")}
-                                                    </span>
-                                                    <ChevronDown className="h-4 w-4 text-slate-400 shrink-0" />
-                                                </button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent className="w-56 max-h-64 overflow-y-auto rounded-xl">
-                                                <DropdownMenuRadioGroup value={filterMarka ?? "all"} onValueChange={(v) => handleFilterChange(setFilterMarka, v === "all" ? null : v)}>
-                                                    <DropdownMenuRadioItem value="all">Любая</DropdownMenuRadioItem>
-                                                    {dictionaries?.marks?.map((m: any) => (
-                                                        <DropdownMenuRadioItem key={m.id} value={m.id.toString()}>{m.name}</DropdownMenuRadioItem>
-                                                    ))}
-                                                </DropdownMenuRadioGroup>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </div>
+                                    <DictionarySelect
+                                        type="MARKA"
+                                        label="Марка"
+                                        value={filterMarka}
+                                        onChange={(v) => handleFilterChange(setFilterMarka, v)}
+                                        placeholder="Любая"
+                                    />
 
-                                    {models.length > 0 && (
-                                        <div>
-                                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Модель</label>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <button className="flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-sm font-bold bg-slate-50 border border-slate-200">
-                                                        <span className="truncate">
-                                                            {filterModel === null ? "Любая" : (models.find((c: any) => c.id.toString() === filterModel)?.name ?? "Выбрано")}
-                                                        </span>
-                                                        <ChevronDown className="h-4 w-4 text-slate-400 shrink-0" />
-                                                    </button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent className="w-56 max-h-64 overflow-y-auto rounded-xl">
-                                                    <DropdownMenuRadioGroup value={filterModel ?? "all"} onValueChange={(v) => handleFilterChange(setFilterModel, v === "all" ? null : v)}>
-                                                        <DropdownMenuRadioItem value="all">Любая</DropdownMenuRadioItem>
-                                                        {models.map((m: any) => (
-                                                            <DropdownMenuRadioItem key={m.id} value={m.id.toString()}>{m.name}</DropdownMenuRadioItem>
-                                                        ))}
-                                                    </DropdownMenuRadioGroup>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </div>
-                                    )}
+                                    <DictionarySelect
+                                        type="MODEL"
+                                        parentId={filterMarka ? parseInt(filterMarka) : undefined}
+                                        label="Модель"
+                                        value={filterModel}
+                                        onChange={(v) => handleFilterChange(setFilterModel, v)}
+                                        placeholder="Любая"
+                                        disabled={!filterMarka}
+                                    />
+
 
                                     <div>
                                         <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Класс машины</label>
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <button className="flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-sm font-bold bg-slate-50 border border-slate-200">
+                                                <button className="flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-sm font-bold bg-white border border-slate-200 shadow-sm">
                                                     <span className="truncate">
                                                         {filterClass === null ? "Любой" : (dictionaries?.car_classes?.find((c: any) => c.id.toString() === filterClass)?.name ?? "Выбрано")}
                                                     </span>
@@ -273,7 +248,7 @@ export default function CatalogPage() {
                                         <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Цвет</label>
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <button className="flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-sm font-bold bg-slate-50 border border-slate-200">
+                                                <button className="flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-sm font-bold bg-white border border-slate-200 shadow-sm">
                                                     <span className="truncate">
                                                         {filterColor === null ? "Любой" : (dictionaries?.colors?.find((c: any) => c.id.toString() === filterColor)?.name ?? "Выбрано")}
                                                     </span>
@@ -298,7 +273,7 @@ export default function CatalogPage() {
                                             placeholder="Например, 2020"
                                             value={filterYear ?? ""}
                                             onChange={(e) => handleFilterChange(setFilterYear, e.target.value ? e.target.value : null)}
-                                            className="rounded-xl h-10 bg-slate-50 border-slate-200 text-sm font-medium"
+                                            className="rounded-xl h-10 bg-white border-slate-200 shadow-sm text-sm font-medium"
                                         />
                                     </div>
 
@@ -500,7 +475,7 @@ export default function CatalogPage() {
                                     <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Категория</label>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <button className="flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm font-bold bg-slate-50 border border-slate-200">
+                                            <button className="flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm font-bold bg-white border border-slate-200 shadow-sm">
                                                 <span className="truncate">{filterCategory === null ? "Любая" : (dictionaries?.categories?.find((c: any) => c.id.toString() === filterCategory)?.name ?? "Выбрано")}</span>
                                                 <ChevronDown className="h-4 w-4 text-slate-400 shrink-0" />
                                             </button>
@@ -515,51 +490,28 @@ export default function CatalogPage() {
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 </div>
-                                <div>
-                                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Марка</label>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <button className="flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm font-bold bg-slate-50 border border-slate-200">
-                                                <span className="truncate">{filterMarka === null ? "Любая" : (dictionaries?.marks?.find((c: any) => c.id.toString() === filterMarka)?.name ?? "Выбрано")}</span>
-                                                <ChevronDown className="h-4 w-4 text-slate-400 shrink-0" />
-                                            </button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-64 overflow-y-auto rounded-xl">
-                                            <DropdownMenuRadioGroup value={filterMarka ?? "all"} onValueChange={(v) => handleFilterChange(setFilterMarka, v === "all" ? null : v)}>
-                                                <DropdownMenuRadioItem value="all">Любая</DropdownMenuRadioItem>
-                                                {dictionaries?.marks?.map((m: any) => (
-                                                    <DropdownMenuRadioItem key={m.id} value={m.id.toString()}>{m.name}</DropdownMenuRadioItem>
-                                                ))}
-                                            </DropdownMenuRadioGroup>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </div>
-                                {models.length > 0 && (
-                                    <div>
-                                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Модель</label>
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <button className="flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm font-bold bg-slate-50 border border-slate-200">
-                                                    <span className="truncate">{filterModel === null ? "Любая" : (models.find((c: any) => c.id.toString() === filterModel)?.name ?? "Выбрано")}</span>
-                                                    <ChevronDown className="h-4 w-4 text-slate-400 shrink-0" />
-                                                </button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-64 overflow-y-auto rounded-xl">
-                                                <DropdownMenuRadioGroup value={filterModel ?? "all"} onValueChange={(v) => handleFilterChange(setFilterModel, v === "all" ? null : v)}>
-                                                    <DropdownMenuRadioItem value="all">Любая</DropdownMenuRadioItem>
-                                                    {models.map((m: any) => (
-                                                        <DropdownMenuRadioItem key={m.id} value={m.id.toString()}>{m.name}</DropdownMenuRadioItem>
-                                                    ))}
-                                                </DropdownMenuRadioGroup>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </div>
-                                )}
+                                <DictionarySelect
+                                    type="MARKA"
+                                    label="Марка"
+                                    value={filterMarka}
+                                    onChange={(v) => handleFilterChange(setFilterMarka, v)}
+                                    placeholder="Любая"
+                                />
+                                <DictionarySelect
+                                    type="MODEL"
+                                    parentId={filterMarka ? parseInt(filterMarka) : undefined}
+                                    label="Модель"
+                                    value={filterModel}
+                                    onChange={(v) => handleFilterChange(setFilterModel, v)}
+                                    placeholder="Любая"
+                                    disabled={!filterMarka}
+                                />
+
                                 <div>
                                     <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Класс машины</label>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <button className="flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm font-bold bg-slate-50 border border-slate-200">
+                                            <button className="flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm font-bold bg-white border border-slate-200 shadow-sm">
                                                 <span className="truncate">{filterClass === null ? "Любой" : (dictionaries?.car_classes?.find((c: any) => c.id.toString() === filterClass)?.name ?? "Выбрано")}</span>
                                                 <ChevronDown className="h-4 w-4 text-slate-400 shrink-0" />
                                             </button>
@@ -578,7 +530,7 @@ export default function CatalogPage() {
                                     <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Цвет</label>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <button className="flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm font-bold bg-slate-50 border border-slate-200">
+                                            <button className="flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm font-bold bg-white border border-slate-200 shadow-sm">
                                                 <span className="truncate">{filterColor === null ? "Любой" : (dictionaries?.colors?.find((c: any) => c.id.toString() === filterColor)?.name ?? "Выбрано")}</span>
                                                 <ChevronDown className="h-4 w-4 text-slate-400 shrink-0" />
                                             </button>
@@ -600,7 +552,7 @@ export default function CatalogPage() {
                                         placeholder="Например, 2020"
                                         value={filterYear ?? ""}
                                         onChange={(e) => handleFilterChange(setFilterYear, e.target.value ? e.target.value : null)}
-                                        className="rounded-xl h-11 bg-slate-50 border-slate-200 text-sm font-medium"
+                                        className="rounded-xl h-11 bg-white border-slate-200 shadow-sm text-sm font-medium"
                                     />
                                 </div>
                             </div>

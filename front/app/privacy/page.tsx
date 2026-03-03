@@ -11,7 +11,7 @@ export default function PrivacyPage() {
                 <section>
                     <h2 className="text-2xl font-bold mt-8 mb-4">1. Введение</h2>
                     <p className="text-slate-600">
-                        Мы в AutoPro серьезно относимся к защите ваших персональных данных.
+                        Мы в AutoRentGo серьезно относимся к защите ваших персональных данных.
                         Данная Политика конфиденциальности описывает, какую информацию мы собираем,
                         как мы ее используем и защищаем.
                     </p>
@@ -88,8 +88,8 @@ export default function PrivacyPage() {
                 <section className="mt-12 p-6 bg-blue-50/50 rounded-2xl">
                     <p className="text-slate-600">
                         По вопросам конфиденциальности обращайтесь:
-                        <a href="mailto:privacy@autopro.kz" className="text-primary hover:underline ml-1">
-                            privacy@autopro.kz
+                        <a href="mailto:privacy@autorentgo.kz" className="text-primary hover:underline ml-1">
+                            privacy@autorentgo.kz
                         </a>
                     </p>
                 </section>

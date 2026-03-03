@@ -12,7 +12,7 @@ export default function TermsPage() {
                     <h2 className="text-2xl font-bold mt-8 mb-4">1. Общие положения</h2>
                     <p className="text-slate-600">
                         Настоящие Условия использования регулируют отношения между пользователями
-                        и платформой AutoPro. Используя наш сервис, вы соглашаетесь с данными условиями.
+                        и платформой AutoRentGo. Используя наш сервис, вы соглашаетесь с данными условиями.
                     </p>
                 </section>
 
@@ -55,7 +55,7 @@ export default function TermsPage() {
                 <section>
                     <h2 className="text-2xl font-bold mt-8 mb-4">6. Ответственность</h2>
                     <p className="text-slate-600">
-                        AutoPro не несет ответственности за сделки между пользователями.
+                        AutoRentGo не несет ответственности за сделки между пользователями.
                         Мы рекомендуем проявлять осторожность и проверять всю информацию перед совершением сделки.
                     </p>
                 </section>
@@ -71,8 +71,8 @@ export default function TermsPage() {
                 <section className="mt-12 p-6 bg-slate-50 rounded-2xl">
                     <p className="text-slate-600">
                         По вопросам, связанным с условиями использования, обращайтесь:
-                        <a href="mailto:legal@autopro.kz" className="text-primary hover:underline ml-1">
-                            legal@autopro.kz
+                        <a href="mailto:legal@autorentgo.kz" className="text-primary hover:underline ml-1">
+                            legal@autorentgo.kz
                         </a>
                     </p>
                 </section>
