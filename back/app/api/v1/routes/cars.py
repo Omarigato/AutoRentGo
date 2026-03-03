@@ -17,6 +17,7 @@ from app.services.subscriptions_service import (
 )
 from app.services.telegram import send_new_application_message
 from app.core.responses import create_response
+from app.core.i18n import get_message
 from app.core.config import settings
 
 router = APIRouter()
@@ -309,11 +310,11 @@ def get_car(
         Car.delete_date.is_(None),
     ).first()
     if not car:
-        raise HTTPException(status_code=404, detail="Car not found")
+        raise HTTPException(status_code=404, detail=get_message("car_not_found", lang=request.state.lang))
 
     if car.status == "DRAFT":
         if not current_user or car.author_id != current_user.id:
-            raise HTTPException(status_code=403, detail="Not authorized to view draft")
+            raise HTTPException(status_code=403, detail=get_message("not_authorized", lang=request.state.lang))
 
     def dict_name(d):
         if not d:
@@ -376,11 +377,11 @@ def delete_car(
     """
     car = db.query(Car).filter(Car.id == car_id).first()
     if not car:
-        raise HTTPException(status_code=404, detail="Car not found")
+        raise HTTPException(status_code=404, detail=get_message("car_not_found", lang=request.state.lang))
     
     # Check ownership or admin
     if car.author_id != current_owner.id and current_owner.role != "admin":
-         raise HTTPException(status_code=403, detail="Not authorized to delete this car")
+         raise HTTPException(status_code=403, detail=get_message("not_authorized", lang=request.state.lang))
 
     car.status = "DELETED"
     car.delete_date = datetime.utcnow()
@@ -422,9 +423,9 @@ async def update_car(
 ):
     car = db.query(Car).filter(Car.id == car_id).first()
     if not car:
-        raise HTTPException(status_code=404, detail="Car not found")
+        raise HTTPException(status_code=404, detail=get_message("car_not_found", lang=request.state.lang))
     if car.author_id != current_owner.id:
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=403, detail=get_message("not_authorized", lang=request.state.lang))
 
     car.name = name
     car.vehicle_mark_id = vehicle_mark_id
@@ -482,14 +483,14 @@ async def delete_car_image(
 ):
     car = db.query(Car).filter(Car.id == car_id).first()
     if not car or car.author_id != current_owner.id:
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=403, detail=get_message("not_authorized", lang=request.state.lang))
     image = db.query(Image).filter(Image.id == image_id, Image.entity_id == car_id, Image.entity_type == 'CAR').first()
     if not image:
-        raise HTTPException(status_code=404, detail="Image not found")
+        raise HTTPException(status_code=404, detail=get_message("error", lang=request.state.lang))
         
     from app.services.cloudinary_service import CloudinaryService
     if image.image_id:
         CloudinaryService.delete_image(image.image_id)
     db.delete(image)
     db.commit()
-    return create_response(message_key="ok", lang=request.state.lang if hasattr(request.state, 'lang') else "ru")
+    return create_response(message_key="ok", lang=request.state.lang if hasattr(request.state, 'lang') else "kk")

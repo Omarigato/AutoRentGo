@@ -18,7 +18,7 @@ apiClient.interceptors.request.use((config) => {
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    const lang = window.localStorage.getItem("lang") || "ru";
+    const lang = window.localStorage.getItem("lang") || "kk";
     config.params = { ...config.params, lang };
   }
   return config;

@@ -46,7 +46,7 @@ def list_dictionaries(
     """
     Универсальный эндпоинт для получения справочников с поддержкой поиска, пагинации и сортировки.
     """
-    lang = getattr(request.state, "lang", "ru")
+    lang = getattr(request.state, "lang", "kk")
     
     # Eager load translations to avoid N+1
     query = db.query(Dictionary).options(joinedload(Dictionary.translations)).filter(Dictionary.is_active == True)
