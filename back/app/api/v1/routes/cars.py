@@ -303,17 +303,19 @@ def get_car(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user_optional),
 ):
-    """Публичное получение объявления по id. Только со статусом ACTIVE/DRAFT."""
+    """Публичное получение объявления по id. Только со статусом ACTIVE/DRAFT/AWAIT."""
     car = db.query(Car).filter(
         Car.id == car_id,
-        Car.status.in_(["ACTIVE", "DRAFT"]),
+        Car.status.in_(["ACTIVE", "DRAFT", "AWAIT"]),
         Car.delete_date.is_(None),
     ).first()
     if not car:
         raise HTTPException(status_code=404, detail=get_message("car_not_found", lang=request.state.lang))
 
-    if car.status == "DRAFT":
-        if not current_user or car.author_id != current_user.id:
+    # Если объявление не активно, смотреть может только автор или админ
+    if car.status != "ACTIVE":
+        is_admin = current_user and current_user.role == "admin"
+        if not current_user or (car.author_id != current_user.id and not is_admin):
             raise HTTPException(status_code=403, detail=get_message("not_authorized", lang=request.state.lang))
 
     def dict_name(d):

@@ -28,6 +28,7 @@ MESSAGES = {
         "password_updated": "Пароль успешно обновлен",
         "email_reset_only": "Сброс пароля возможен только по email",
         "upload_error": "Ошибка загрузки файла",
+        "application_already_exists": "У вас уже есть активная заявка с такими параметрами",
     },
     "kk": {
         "success": "Сәтті",
@@ -58,6 +59,7 @@ MESSAGES = {
         "password_updated": "Пароль сәтті жаңартылды",
         "email_reset_only": "Парольді тек email арқылы қалпына келтіруге болады",
         "upload_error": "Файлды жүктеу қатесі",
+        "application_already_exists": "Сізде осындай параметрлері бар белсенді өтінім бар",
     },
     "en": {
         "success": "Success",
@@ -88,6 +90,7 @@ MESSAGES = {
         "password_updated": "Password successfully updated",
         "email_reset_only": "Password reset is only possible via email",
         "upload_error": "File upload error",
+        "application_already_exists": "You already have an active application with these parameters",
     }
 }
 
