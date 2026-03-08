@@ -75,10 +75,16 @@ async def trigger_sync(db: Session = Depends(get_db), admin: User = Depends(chec
 
 # --- Управление справочниками (Dictionaries) ---
 
-def _dict_item_to_response(d: Dictionary, db: Session) -> dict:
-    """Собирает элемент словаря с переводами name_ru, name_en, name_kk."""
-    translations = db.query(DictionaryTranslation).filter(DictionaryTranslation.dictionary_id == d.id).all()
-    by_lang = {t.lang: t.name for t in translations}
+from sqlalchemy.orm import joinedload
+
+def _dict_item_to_response(d: Dictionary) -> dict:
+    """Collect dictionary item with translations from joined object."""
+    by_lang = {t.lang: t.name for t in d.translations}
+    parent_name = None
+    if d.parent:
+        parent_trans = next((t for t in d.parent.translations if t.lang == "ru"), None)
+        parent_name = parent_trans.name if parent_trans else d.parent.name
+
     return {
         "id": d.id,
         "name": d.name,
@@ -88,6 +94,7 @@ def _dict_item_to_response(d: Dictionary, db: Session) -> dict:
         "code": d.code,
         "type": d.type,
         "parent_id": d.parent_id,
+        "parent_name": parent_name,
         "icon": d.icon,
         "color": d.color,
         "display_order": d.display_order,
@@ -99,20 +106,34 @@ def _dict_item_to_response(d: Dictionary, db: Session) -> dict:
 def list_dictionaries(
     type: str | None = None,
     parent_id: int | None = None,
+    q: str | None = None,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=1000),
     db: Session = Depends(get_db),
     admin: User = Depends(check_admin),
 ):
     """
-    Список элементов словаря для админ‑панели с переводами (ru, en, kk).
+    List dictionary items for admin panel with translations and pagination.
     """
-    query = db.query(Dictionary)
+    query = db.query(Dictionary).options(joinedload(Dictionary.translations))
     if type:
         query = query.filter(Dictionary.type == type)
     if parent_id:
         query = query.filter(Dictionary.parent_id == parent_id)
-    items = query.order_by(Dictionary.display_order.asc(), Dictionary.id.asc()).all()
-    data = [_dict_item_to_response(d, db) for d in items]
-    return create_response(data=data)
+    if q:
+        search_term = f"%{q.lower()}%"
+        query = query.join(DictionaryTranslation, isouter=True).filter(
+            or_(
+                Dictionary.name.ilike(search_term),
+                Dictionary.code.ilike(search_term),
+                DictionaryTranslation.name.ilike(search_term)
+            )
+        ).distinct()
+        
+    total = query.count()
+    items = query.order_by(Dictionary.display_order.asc(), Dictionary.id.asc()).offset(skip).limit(limit).all()
+    data = [_dict_item_to_response(d) for d in items]
+    return create_response(data={"items": data, "total": total})
 
 
 @router.post("/dictionaries")

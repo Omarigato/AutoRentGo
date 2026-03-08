@@ -88,31 +88,17 @@ export default function CatalogPage() {
     const total = data?.total || 0;
     const totalPages = Math.ceil(total / limit) || 1;
 
-    // To load models when marka is selected
-    const [models, setModels] = useState<any[]>([]);
-    const { getCachedDictionaries } = require("@/lib/dictionaries");
+    // Handle effect if needed, but DictionarySelect manages its own data
     useEffect(() => {
         if (!filterMarka) {
-            setModels([]);
             setFilterModel(null);
-            return;
         }
-        getCachedDictionaries('MODEL', parseInt(filterMarka)).then((res: any) => setModels(res || []));
     }, [filterMarka]);
 
     const handleFilterChange = (setter: any, val: any) => {
         setter(val);
         setPage(1);
     };
-
-    if (carsLoading || dictLoading) {
-        return (
-            <div className="min-h-screen bg-white flex flex-col items-center justify-center space-y-4">
-                <div className="w-16 h-16 border-4 border-slate-200 border-t-slate-600 rounded-full animate-spin" />
-                <p className="text-slate-500 font-bold animate-pulse uppercase tracking-widest text-xs">{t("common.loading")}</p>
-            </div>
-        );
-    }
 
     return (
         <div className="min-h-screen">
@@ -189,7 +175,7 @@ export default function CatalogPage() {
                                             <DropdownMenuTrigger asChild>
                                                 <button className="flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-sm font-bold bg-white border border-slate-200 shadow-sm">
                                                     <span className="truncate">
-                                                        {filterCategory === null ? t("catalog.any_female") : (dictionaries?.categories?.find((c: any) => c.id.toString() === filterCategory)?.name ?? "Selected")}
+                                                        {dictLoading ? t("common.loading") : (filterCategory === null ? t("catalog.any_female") : (dictionaries?.categories?.find((c: any) => c.id.toString() === filterCategory)?.name ?? "Selected"))}
                                                     </span>
                                                     <ChevronDown className="h-4 w-4 text-slate-400 shrink-0" />
                                                 </button>
@@ -197,7 +183,7 @@ export default function CatalogPage() {
                                             <DropdownMenuContent className="w-56 rounded-xl">
                                                 <DropdownMenuRadioGroup value={filterCategory ?? "all"} onValueChange={(v) => handleFilterChange(setFilterCategory, v === "all" ? null : v)}>
                                                     <DropdownMenuRadioItem value="all">{t("catalog.any_female")}</DropdownMenuRadioItem>
-                                                    {dictionaries?.categories?.map((cat: any) => (
+                                                    {!dictLoading && dictionaries?.categories?.map((cat: any) => (
                                                         <DropdownMenuRadioItem key={cat.id} value={cat.id.toString()}>{cat.name}</DropdownMenuRadioItem>
                                                     ))}
                                                 </DropdownMenuRadioGroup>
@@ -214,6 +200,7 @@ export default function CatalogPage() {
                                     />
 
                                     <DictionarySelect
+                                        key={`model-select-${filterMarka}`}
                                         type="MODEL"
                                         parentId={filterMarka ? parseInt(filterMarka) : undefined}
                                         label={t("add_car.model")}
@@ -327,110 +314,124 @@ export default function CatalogPage() {
                             </div>
 
                             {/* Grid */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 auto-rows-fr transition-all duration-500">
-                                {filteredCars.map((car: any) => (
-                                    <Link
-                                        key={car.id}
-                                        href={`/cars/${car.id}`}
-                                        className="group relative flex flex-col bg-white rounded-2xl sm:rounded-[2.5rem] border border-slate-100 shadow-md hover:shadow-xl transition-all duration-500 hover:-translate-y-1 sm:hover:-translate-y-2 overflow-hidden"
-                                    >
-                                        <div className="aspect-[16/10] bg-slate-100 relative overflow-hidden flex-shrink-0">
-                                            {car.images?.[0] ? (
-                                                <img
-                                                    src={car.images[0].url}
-                                                    alt={car.name}
-                                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                                />
-                                            ) : (
-                                                <div className="flex items-center justify-center h-full text-slate-300 bg-slate-50"><Car size={48} className="sm:w-16 sm:h-16" strokeWidth={1} /></div>
-                                            )}
-
-                                            <div className="absolute top-3 left-3 sm:top-5 sm:left-5">
-                                                <span className="flex items-center gap-1 sm:gap-1.5 bg-white/90 backdrop-blur-md px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider sm:tracking-[0.2em] shadow-lg text-slate-900 border border-white/20">
-                                                    <Car size={10} className="sm:w-3 sm:h-3 text-slate-600" />
-                                                    {car.car_class || "Premium"}
-                                                </span>
-                                            </div>
-
-                                            {car.is_top && (
-                                                <div className="absolute top-3 right-3 sm:top-5 sm:right-5">
-                                                    <span className="flex items-center justify-center bg-orange-500 text-white w-7 h-7 sm:w-8 sm:h-8 rounded-full shadow-lg">
-                                                        <Flame size={14} className="sm:w-4 sm:h-4" />
-                                                    </span>
-                                                </div>
-                                            )}
-
-                                            <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
-                                                <div className="bg-slate-800 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl font-black text-xs sm:text-sm shadow-xl">
-                                                    {t("catalog.book")}
-                                                </div>
-                                            </div>
+                            <div className="relative min-h-[400px]">
+                                {carsLoading && (
+                                    <div className="absolute inset-0 z-20 bg-white/60 backdrop-blur-[2px] flex items-center justify-center rounded-[2.5rem]">
+                                        <div className="flex flex-col items-center gap-3">
+                                            <div className="w-12 h-12 border-4 border-slate-200 border-t-slate-600 rounded-full animate-spin" />
+                                            <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{t("common.loading")}</span>
                                         </div>
+                                    </div>
+                                )}
 
-                                        <div className="p-4 sm:p-6 lg:p-8 flex flex-col flex-1">
-                                            <div className="flex justify-between items-start gap-2 mb-4 sm:mb-6">
-                                                <div className="min-w-0 flex-1 pr-2">
-                                                    <h3 className="font-black text-base sm:text-xl text-slate-900 leading-tight group-hover:text-slate-700 transition-colors line-clamp-2">{car.name}</h3>
-                                                    <div className="text-xs sm:text-sm text-slate-500 font-medium mt-1 truncate">
-                                                        {[car.mark, car.model].filter(Boolean).join(" ")}
+                                {filteredCars.length > 0 ? (
+                                    <div className={cn("grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 auto-rows-fr transition-all duration-500", carsLoading && "opacity-40 grayscale-[0.5]")}>
+                                        {filteredCars.map((car: any) => (
+                                            <Link
+                                                key={car.id}
+                                                href={`/cars/${car.id}`}
+                                                className="group relative flex flex-col bg-white rounded-2xl sm:rounded-[2.5rem] border border-slate-100 shadow-md hover:shadow-xl transition-all duration-500 hover:-translate-y-1 sm:hover:-translate-y-2 overflow-hidden"
+                                            >
+                                                <div className="aspect-[16/10] bg-slate-100 relative overflow-hidden flex-shrink-0">
+                                                    {car.images?.[0] ? (
+                                                        <img
+                                                            src={car.images[0].url}
+                                                            alt={car.name}
+                                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                                        />
+                                                    ) : (
+                                                        <div className="flex items-center justify-center h-full text-slate-300 bg-slate-50"><Car size={48} className="sm:w-16 sm:h-16" strokeWidth={1} /></div>
+                                                    )}
+
+                                                    <div className="absolute top-3 left-3 sm:top-5 sm:left-5">
+                                                        <span className="flex items-center gap-1 sm:gap-1.5 bg-white/90 backdrop-blur-md px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider sm:tracking-[0.2em] shadow-lg text-slate-900 border border-white/20">
+                                                            <Car size={10} className="sm:w-3 sm:h-3 text-slate-600" />
+                                                            {car.car_class || "Premium"}
+                                                        </span>
                                                     </div>
-                                                    <div className="flex items-center gap-1.5 mt-2">
-                                                        <MapPin size={12} className="text-slate-400 shrink-0" />
-                                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest truncate">{car.city || 'Алматы'}</p>
+
+                                                    {car.is_top && (
+                                                        <div className="absolute top-3 right-3 sm:top-5 sm:right-5">
+                                                            <span className="flex items-center justify-center bg-orange-500 text-white w-7 h-7 sm:w-8 sm:h-8 rounded-full shadow-lg">
+                                                                <Flame size={14} className="sm:w-4 sm:h-4" />
+                                                            </span>
+                                                        </div>
+                                                    )}
+
+                                                    <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                                                        <div className="bg-slate-800 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl font-black text-xs sm:text-sm shadow-xl">
+                                                            {t("catalog.book")}
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div className="text-right shrink-0">
-                                                    <span className="block font-black text-lg sm:text-2xl text-slate-900 leading-none">{car.price_per_day.toLocaleString()} ₸</span>
-                                                    <span className="text-[10px] text-slate-400 uppercase font-black tracking-tighter">{t("catalog.per_day")}</span>
-                                                </div>
-                                            </div>
 
-                                            <div className="mt-auto pt-4 sm:pt-6 border-t border-slate-50 grid grid-cols-2 gap-2">
-                                                <div className="flex flex-col items-center justify-center p-2 rounded-xl sm:rounded-2xl bg-slate-50">
-                                                    <Calendar size={14} className="text-slate-400 mb-1" />
-                                                    <span className="text-[10px] font-black text-slate-900">{car.release_year}</span>
+                                                <div className="p-4 sm:p-6 lg:p-8 flex flex-col flex-1">
+                                                    <div className="flex justify-between items-start gap-2 mb-4 sm:mb-6">
+                                                        <div className="min-w-0 flex-1 pr-2">
+                                                            <h3 className="font-black text-base sm:text-xl text-slate-900 leading-tight group-hover:text-slate-700 transition-colors line-clamp-2">{car.name}</h3>
+                                                            <div className="text-xs sm:text-sm text-slate-500 font-medium mt-1 truncate">
+                                                                {[car.mark, car.model].filter(Boolean).join(" ")}
+                                                            </div>
+                                                            <div className="flex items-center gap-1.5 mt-2">
+                                                                <MapPin size={12} className="text-slate-400 shrink-0" />
+                                                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest truncate">{car.city || 'Алматы'}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-right shrink-0">
+                                                            <span className="block font-black text-lg sm:text-2xl text-slate-900 leading-none">{car.price_per_day.toLocaleString()} ₸</span>
+                                                            <span className="text-[10px] text-slate-400 uppercase font-black tracking-tighter">{t("catalog.per_day")}</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="mt-auto pt-4 sm:pt-6 border-t border-slate-50 grid grid-cols-2 gap-2">
+                                                        <div className="flex flex-col items-center justify-center p-2 rounded-xl sm:rounded-2xl bg-slate-50">
+                                                            <Calendar size={14} className="text-slate-400 mb-1" />
+                                                            <span className="text-[10px] font-black text-slate-900">{car.release_year}</span>
+                                                        </div>
+                                                        <div className="flex flex-col items-center justify-center p-2 rounded-xl sm:rounded-2xl bg-slate-50">
+                                                            <Settings size={14} className="text-slate-400 mb-1" />
+                                                            <span className="text-[10px] font-black text-slate-900 truncate px-1">
+                                                                {car.transmission?.slice(0, 3) || 'Авт'}
+                                                            </span>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div className="flex flex-col items-center justify-center p-2 rounded-xl sm:rounded-2xl bg-slate-50">
-                                                    <Settings size={14} className="text-slate-400 mb-1" />
-                                                    <span className="text-[10px] font-black text-slate-900 truncate px-1">
-                                                        {car.transmission?.slice(0, 3) || 'Авт'}
-                                                    </span>
-                                                </div>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    !carsLoading && (
+                                        <div className="text-center py-16 sm:py-32 bg-white rounded-2xl sm:rounded-[3rem] border border-dashed border-slate-200 shadow-sm flex flex-col items-center animate-in fade-in zoom-in duration-500 px-4">
+                                            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4 sm:mb-6">
+                                                <Filter className="h-8 w-8 sm:h-10 sm:w-10 text-slate-200" />
                                             </div>
+                                            <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">{t("catalog.no_results")}</h3>
+                                            <p className="text-slate-500 text-sm sm:text-base font-medium mt-2 max-w-sm mx-auto">{t("catalog.no_results_desc")}</p>
+                                            <Button
+                                                variant="outline"
+                                                className="mt-6 sm:mt-8 rounded-full px-6 sm:px-8 font-bold border-slate-300 text-slate-700 hover:bg-slate-100 h-11"
+                                                onClick={() => {
+                                                    setFilterCategory(null);
+                                                    setFilterMarka(null);
+                                                    setFilterModel(null);
+                                                    setFilterYear(null);
+                                                    setFilterColor(null);
+                                                    setFilterClass(null);
+                                                    setSearchQuery("");
+                                                    setPage(1);
+                                                    setFiltersOpen(false);
+                                                }}
+                                            >
+                                                {t("catalog.reset")}
+                                            </Button>
+                                            <Link href="/find" className="mt-4 text-primary font-medium hover:underline text-sm sm:text-base">
+                                                {t("catalog.request_desc")}
+                                            </Link>
                                         </div>
-                                    </Link>
-                                ))}
+                                    )
+                                )}
                             </div>
 
-                            {filteredCars.length === 0 && (
-                                <div className="text-center py-16 sm:py-32 bg-white rounded-2xl sm:rounded-[3rem] border border-dashed border-slate-200 shadow-sm flex flex-col items-center animate-in fade-in zoom-in duration-500 px-4">
-                                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4 sm:mb-6">
-                                        <Filter className="h-8 w-8 sm:h-10 sm:w-10 text-slate-200" />
-                                    </div>
-                                    <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">{t("catalog.no_results")}</h3>
-                                    <p className="text-slate-500 text-sm sm:text-base font-medium mt-2 max-w-sm mx-auto">{t("catalog.no_results_desc")}</p>
-                                    <Button
-                                        variant="outline"
-                                        className="mt-6 sm:mt-8 rounded-full px-6 sm:px-8 font-bold border-slate-300 text-slate-700 hover:bg-slate-100 h-11"
-                                        onClick={() => {
-                                            setFilterCategory(null);
-                                            setFilterMarka(null);
-                                            setFilterModel(null);
-                                            setFilterYear(null);
-                                            setFilterColor(null);
-                                            setFilterClass(null);
-                                            setSearchQuery("");
-                                            setPage(1);
-                                            setFiltersOpen(false);
-                                        }}
-                                    >
-                                        {t("catalog.reset")}
-                                    </Button>
-                                    <Link href="/find" className="mt-4 text-primary font-medium hover:underline text-sm sm:text-base">
-                                        {t("catalog.request_desc")}
-                                    </Link>
-                                </div>
-                            )}
 
                             {filteredCars.length > 0 && totalPages > 1 && (
                                 <div className="flex flex-col sm:flex-row justify-center items-center gap-3 pt-6 border-t border-slate-100 mt-6 sm:mt-8 mb-4">

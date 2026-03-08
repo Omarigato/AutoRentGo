@@ -188,8 +188,33 @@ export default function CarDetailsPage() {
         }
     };
 
-    if (isLoading) return <div className="container py-20 text-center animate-pulse">{t("car_details.loading")}</div>;
-    if (!car) return <div className="container py-20 text-center text-red-500">{t("car_details.not_found")}</div>;
+    if (isLoading) return (
+        <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center">
+            <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4" />
+            <p className="text-slate-500 font-bold animate-pulse">{t("car_details.loading")}</p>
+        </div>
+    );
+
+    if (!car) return (
+        <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center">
+            <div className="w-24 h-24 bg-white rounded-3xl shadow-xl shadow-slate-200 flex items-center justify-center mb-8 relative">
+                <Car className="w-10 h-10 text-slate-300" />
+                <div className="absolute top-0 right-0 -mr-2 -mt-2 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white font-bold border-4 border-slate-50">!</div>
+            </div>
+            <h1 className="text-2xl font-black text-slate-900 mb-2">{t("car_details.not_found")}</h1>
+            <p className="text-slate-500 max-w-xs mb-8">
+                Похоже, это объявление удалено или перенесено в архив. Попробуйте найти что-то другое в каталоге.
+            </p>
+            <div className="flex flex-col gap-3 w-full max-w-xs">
+                <Button asChild className="h-14 rounded-2xl font-black text-white shadow-lg shadow-primary/20">
+                    <Link href="/catalog">Перейти в каталог</Link>
+                </Button>
+                <Button variant="ghost" className="h-14 rounded-2xl font-bold text-slate-500" onClick={() => router.push('/')}>
+                    На главную
+                </Button>
+            </div>
+        </div>
+    );
 
     const images = car.images && car.images.length > 0 ? car.images : [{ url: "https://via.placeholder.com/800x600?text=No+Image" }];
     const currentMainImage = mainImage || images[0].url;

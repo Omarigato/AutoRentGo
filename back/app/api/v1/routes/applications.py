@@ -14,6 +14,7 @@ from app.services.subscriptions_service import get_active_subscription_for_owner
 from app.services.email_service import email_service
 from app.services.whatsapp_service import whatsapp_service
 from app.schemas.applications import ApplicationUpdateStatus
+from app.core.config import settings
 
 router = APIRouter()
 
@@ -52,6 +53,8 @@ def _application_payload(app: models.Application, lang: str, include_cars: bool 
                 "id": c.id,
                 "name": c.name,
                 "author_id": c.author_id,
+                "author_name": c.author.name if c.author else "Unknown",
+                "author_phone": c.author.phone_number if c.author else None,
                 "price_per_day": c.price_per_day,
                 "release_year": c.release_year,
                 "images": [{"url": img.url} for img in c.car_images[:1]],
@@ -88,6 +91,18 @@ async def create_application(
 ):
     if message and len(message) > 1000:
         return create_response(code=400, message="Сообщение не более 1000 символов", lang=request.state.lang)
+    
+    # Duplicate check
+    existing = db.query(models.Application).filter(
+        models.Application.user_id == current_user.id,
+        models.Application.city_id == city_id,
+        models.Application.category_id == category_id,
+        models.Application.vehicle_mark_id == vehicle_mark_id,
+        models.Application.vehicle_model_id == vehicle_model_id,
+        models.Application.status == "ACTIVE"
+    ).first()
+    if existing:
+        return create_response(code=400, message=i18n.get(request.state.lang, "application_already_exists"), lang=request.state.lang)
     req_dt = None
     if requested_at:
         try:
@@ -120,11 +135,12 @@ async def create_application(
                     position=idx,
                 ))
 
-    # Matching cars: ACTIVE, same city, category; mark/model optional
+    # Matching cars: ACTIVE, same city, category; mark/model optional, NOT OWN
     q = db.query(models.Car).filter(
         models.Car.status == "ACTIVE",
         models.Car.delete_date.is_(None),
         models.Car.city_id == app.city_id,
+        models.Car.author_id != current_user.id,
     )
     if app.category_id is not None:
         q = q.filter(models.Car.category_id == app.category_id)
@@ -190,11 +206,11 @@ def list_my_applications(
     result = []
     for app in apps:
         ac_list = db.query(models.ApplicationCar).filter(models.ApplicationCar.application_id == app.id).all()
-        cars = [ac.car for ac in ac_list if ac.car]
+        cars = [ac.car for ac in ac_list if ac.car and ac.car.author_id != current_user.id]
         
         view_history = []
         for ac in ac_list:
-            if ac.owner_read_at and ac.car and ac.car.author:
+            if ac.owner_read_at and ac.car and ac.car.author and ac.car.author_id != current_user.id:
                 view_history.append({
                     "date": ac.owner_read_at.isoformat(),
                     "name": ac.car.author.name,
@@ -236,7 +252,7 @@ def mark_to_my_ads_read(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    my_car_ids = [r[0] for r in db.query(Car.id).filter(Car.author_id == current_user.id).all()]
+    my_car_ids = [r[0] for r in db.query(models.Car.id).filter(models.Car.author_id == current_user.id).all()]
     if not my_car_ids:
         return create_response(message="OK", lang=getattr(request.state, "lang", "ru"))
 
@@ -255,8 +271,8 @@ def list_to_my_ads(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    my_car_ids = [r[0] for r in db.query(Car.id).filter(Car.author_id == current_user.id).all()]
-    if not my_car_ids:
+    my_car_ids = [r[0] for r in db.query(models.Car.id).filter(models.Car.author_id == current_user.id).all()]
+    if my_car_ids:
         return create_response(data=[], lang=getattr(request.state, "lang", "ru"))
 
     app_ids = [r[0] for r in db.query(models.ApplicationCar.application_id).filter(
@@ -289,10 +305,13 @@ def list_other_applications(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    my_car_ids = [r[0] for r in db.query(Car.id).filter(Car.author_id == current_user.id).all()]
+    my_car_ids = [r[0] for r in db.query(models.Car.id).filter(models.Car.author_id == current_user.id).all()]
     city_id = getattr(current_user, "city_id", None)
 
-    q = db.query(models.Application).filter(models.Application.status == "ACTIVE")
+    q = db.query(models.Application).filter(
+        models.Application.status == "ACTIVE",
+        models.Application.user_id != current_user.id
+    )
     if city_id is not None:
         q = q.filter(models.Application.city_id == city_id)
 
@@ -300,7 +319,7 @@ def list_other_applications(
         subq = db.query(models.ApplicationCar.application_id).filter(models.ApplicationCar.car_id.in_(my_car_ids)).distinct()
         q = q.filter(~models.Application.id.in_(subq))
 
-    apps = q.order_by(Application.create_date.desc()).limit(100).all()
+    apps = q.order_by(models.Application.create_date.desc()).limit(100).all()
     has_subscription = get_active_subscription_for_owner(db, current_user.id) is not None
     lang = getattr(request.state, "lang", "ru")
     result = []

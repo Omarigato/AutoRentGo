@@ -20,12 +20,12 @@ type Stats = {
 };
 
 const STATUS_LABELS: Record<string, string> = {
-  ACTIVE: "status.active",
-  AWAIT: "status.await",
-  REJECT: "status.reject",
-  DRAFT: "status.draft",
-  COMPLETED: "status.completed",
-  REJECTED: "status.rejected",
+  ACTIVE: "admin.status.ACTIVE",
+  AWAIT: "admin.status.AWAIT",
+  REJECT: "admin.status.REJECT",
+  REJECTED: "admin.status.REJECTED",
+  DRAFT: "admin.status.DRAFT",
+  COMPLETED: "admin.status.COMPLETED"
 };
 
 export default function DashboardPage() {
