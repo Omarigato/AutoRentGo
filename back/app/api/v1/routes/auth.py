@@ -273,8 +273,8 @@ async def request_otp(
         )
     ).first()
 
-    # Если это не запрос на обновление профиля и пользователь не найден — ошибка:
-    if not user and payload.type != "update":
+    # Для update профиля пользователь должен существовать
+    if payload.type == "update" and not user:
         return create_response(
             code=404,
             message_key="user_not_found",
@@ -301,7 +301,7 @@ async def request_otp(
         await email_service.send_otp(payload.target, otp)
     else:
         # Отправка в WhatsApp/SMS по номеру телефона
-        phone = user.phone_number or payload.target
+        phone = (user.phone_number if user else None) or target
         await whatsapp_service.send_otp(phone, otp)
 
     print(f"DEBUG: OTP for {payload.target} is {otp}")
