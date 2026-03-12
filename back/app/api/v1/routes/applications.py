@@ -206,6 +206,17 @@ def list_my_applications(
     result = []
     for app in apps:
         ac_list = db.query(models.ApplicationCar).filter(models.ApplicationCar.application_id == app.id).all()
+        if len(ac_list) == 0:
+            new_ac_list = db.query(models.Car).filter(
+                models.Car.status == "ACTIVE",
+                models.Car.delete_date.is_(None),
+                models.Car.city_id == app.city_id,
+                models.Car.author_id != current_user.id,
+            ).all()
+            for car in new_ac_list:
+                db.add(models.ApplicationCar(application_id=app.id, car_id=car.id))
+            db.commit()
+            ac_list = db.query(models.ApplicationCar).filter(models.ApplicationCar.application_id == app.id).all()
         cars = [ac.car for ac in ac_list if ac.car and ac.car.author_id != current_user.id]
         
         view_history = []

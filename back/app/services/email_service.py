@@ -5,6 +5,8 @@ from jinja2 import Environment, FileSystemLoader
 
 from app.core.logger import logger
 from app.core.config import settings
+from app.models import Application, Car
+from sqlalchemy.orm import Session
 
 # Определение пути к шаблонам
 TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates", "email")
@@ -102,6 +104,33 @@ class EmailService:
             )
             return await self._send(email, subject, body)
 
+    async def send_new_car_for_applications(self, car: Car) -> bool:
+
+        special_applications = db.query(Application).filter(Application.city_id == car.city_id 
+        and Application.status == "ACTIVE"
+        and Application.marka_id == car.marka_id
+        and Application.model_id == car.model_id
+        ).all()
+
+        users = db.query(User).filter(User.id.in_([app.user_id for app in special_applications])).all()
+
+        for user in users:
+            """
+            Отправка уведомления о новом автомобиле для заявки (HTML).
+            """
+            subject = "Новый автомобиль для вашей заявки"
+            try:
+                template = jinja_env.get_template("new_car_for_application.html")
+                html_content = template.render(car_name=car_name)
+                return await self._send(email, subject, html_content, subtype="html")
+            except Exception as e:
+                logger.error(f"Error rendering new_car_for_application template: {e}")
+                body = (
+                    f"Здравствуйте!\n\n"
+                    f"Новый автомобиль добавлен в вашу заявку: {car_name}\n\n"
+                    f"С уважением, Команда AutoRentGo"
+                )
+                return await self._send(email, subject, body)
 
 email_service = EmailService()
 

@@ -456,13 +456,17 @@ def list_cars_admin(db: Session = Depends(get_db), admin: User = Depends(check_a
     } for c in cars])
 
 @router.post("/cars/{car_id}/approve")
-def approve_car(car_id: int, db: Session = Depends(get_db), admin: User = Depends(check_admin)):
+async def approve_car(car_id: int, db: Session = Depends(get_db), admin: User = Depends(check_admin)):
     """Одобрить объявление — статус ACTIVE (показывается в каталоге)."""
     car = db.query(Car).filter(Car.id == car_id).first()
     if not car:
         raise HTTPException(404)
     car.status = "ACTIVE"
     car.update_date = datetime.utcnow()
+    try:
+        await email_service.send_new_car_for_applications(car)
+    except Exception as e:
+        logger.error(f"Error sending new car for applications: {e}")
     db.commit()
     return create_response(data={"id": car.id, "status": car.status})
 

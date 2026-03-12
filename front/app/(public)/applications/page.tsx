@@ -431,6 +431,7 @@ function ProfileRequestsContent() {
                               {app.status === "ACTIVE" ? "Активна" : app.status === "COMPLETED" ? "Завершена" : "Отклонена"}
                             </span>
                           </div>
+                          <p className="text-xs text-slate-500 font-medium">{app.city_name ?? "—"}</p>
                           <p className="text-xs text-slate-500 font-medium">{app.requested_at ? new Date(app.requested_at).toLocaleString("ru") : "—"}</p>
                         </div>
                         <div className="flex items-center gap-2 sm:gap-4 shrink-0">

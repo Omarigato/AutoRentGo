@@ -20,3 +20,6 @@ Traceback (most recent call last):
               ^^^^^^^^^^^^^^^^^
 AttributeError: module 'bcrypt' has no attribute '__about__'
 2026-03-03 17:19:39,677 - autorentgo - INFO - [EMAIL] Sending to omarakim2005@gmail.com | subject=Новый пароль для входа в AutoRentGo
+2026-03-11 11:39:25,043 - autorentgo - INFO - [EMAIL] Sending to kengesbaeve28@gmail.com | subject=Ваш код подтверждения AutoRentGo
+2026-03-11 11:42:10,582 - autorentgo - INFO - [EMAIL] Sending to omarakim2005@gmail.com | subject=Ваш код подтверждения AutoRentGo
+2026-03-11 11:43:59,811 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8733136965:AAHDoy9vlcQ2b7S7vckc1iBHIdhLA6SRrZY/sendMessage "HTTP/1.1 200 OK"
