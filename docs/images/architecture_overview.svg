@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 480" width="100%" height="100%">
+  <defs>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#1d4ed8" />
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.25" />
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="480" rx="16" fill="url(#bgGrad)" />
+
+  <!-- Title -->
+  <text x="450" y="45" text-anchor="middle" fill="#f8fafc" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="700">AutoRentGo Platform Architecture</text>
+  <text x="450" y="70" text-anchor="middle" fill="#94a3b8" font-family="system-ui, -apple-system, sans-serif" font-size="13">High-Performance Open-Source Rental Engine</text>
+
+  <!-- Layer 1: Clients -->
+  <rect x="50" y="100" width="220" height="150" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1.5" filter="url(#shadow)" />
+  <text x="160" y="125" text-anchor="middle" fill="#38bdf8" font-family="sans-serif" font-size="14" font-weight="600">Client Applications</text>
+  <rect x="70" y="140" width="180" height="35" rx="6" fill="#334155" />
+  <text x="160" y="162" text-anchor="middle" fill="#f1f5f9" font-family="sans-serif" font-size="12">Web App (Next.js 14)</text>
+  <rect x="70" y="185" width="180" height="35" rx="6" fill="#334155" />
+  <text x="160" y="207" text-anchor="middle" fill="#f1f5f9" font-family="sans-serif" font-size="12">Admin Fleet Portal</text>
+
+  <!-- Flow Arrow 1 -->
+  <line x1="270" y1="175" x2="340" y2="175" stroke="#60a5fa" stroke-width="2.5" stroke-dasharray="4" />
+  <polygon points="340,175 330,170 330,180" fill="#60a5fa" />
+  <text x="305" y="165" text-anchor="middle" fill="#94a3b8" font-family="sans-serif" font-size="11">HTTPS/REST</text>
+
+  <!-- Layer 2: API Engine -->
+  <rect x="340" y="100" width="220" height="260" rx="10" fill="#1e293b" stroke="#2563eb" stroke-width="2" filter="url(#shadow)" />
+  <rect x="340" y="100" width="220" height="35" rx="10" fill="url(#primaryGrad)" />
+  <text x="450" y="123" text-anchor="middle" fill="#ffffff" font-family="sans-serif" font-size="14" font-weight="600">FastAPI Core Service</text>
+
+  <rect x="355" y="145" width="190" height="30" rx="5" fill="#334155" />
+  <text x="450" y="165" text-anchor="middle" fill="#e2e8f0" font-family="sans-serif" font-size="11">JWT Auth &amp; OTP Security</text>
+
+  <rect x="355" y="185" width="190" height="30" rx="5" fill="#334155" />
+  <text x="450" y="205" text-anchor="middle" fill="#e2e8f0" font-family="sans-serif" font-size="11">Vehicle Catalog &amp; Filters</text>
+
+  <rect x="355" y="225" width="190" height="30" rx="5" fill="#334155" />
+  <text x="450" y="245" text-anchor="middle" fill="#e2e8f0" font-family="sans-serif" font-size="11">Smart Application Matcher</text>
+
+  <rect x="355" y="265" width="190" height="30" rx="5" fill="#334155" />
+  <text x="450" y="285" text-anchor="middle" fill="#e2e8f0" font-family="sans-serif" font-size="11">Multilingual Taxonomy</text>
+
+  <rect x="355" y="305" width="190" height="30" rx="5" fill="#334155" />
+  <text x="450" y="325" text-anchor="middle" fill="#e2e8f0" font-family="sans-serif" font-size="11">Subscriptions &amp; Payments</text>
+
+  <!-- Flow Arrow 2 -->
+  <line x1="560" y1="175" x2="630" y2="175" stroke="#10b981" stroke-width="2.5" />
+  <polygon points="630,175 620,170 620,180" fill="#10b981" />
+  <text x="595" y="165" text-anchor="middle" fill="#94a3b8" font-family="sans-serif" font-size="11">SQLAlchemy</text>
+
+  <!-- Layer 3: Persistence -->
+  <rect x="630" y="100" width="220" height="150" rx="10" fill="#1e293b" stroke="#059669" stroke-width="1.5" filter="url(#shadow)" />
+  <text x="740" y="125" text-anchor="middle" fill="#34d399" font-family="sans-serif" font-size="14" font-weight="600">Persistence Layer</text>
+  <rect x="650" y="140" width="180" height="35" rx="6" fill="#334155" />
+  <text x="740" y="162" text-anchor="middle" fill="#f1f5f9" font-family="sans-serif" font-size="12">PostgreSQL 16 (Prod)</text>
+  <rect x="650" y="185" width="180" height="35" rx="6" fill="#334155" />
+  <text x="740" y="207" text-anchor="middle" fill="#f1f5f9" font-family="sans-serif" font-size="12">SQLite (Local Dev &amp; CI)</text>
+
+  <!-- Layer 4: External Integrations -->
+  <rect x="50" y="380" width="800" height="70" rx="10" fill="#1e293b" stroke="#475569" stroke-width="1" />
+  <text x="70" y="420" fill="#94a3b8" font-family="sans-serif" font-size="12" font-weight="600">Integrations:</text>
+  
+  <rect x="160" y="395" width="140" height="40" rx="6" fill="#334155" />
+  <text x="230" y="420" text-anchor="middle" fill="#38bdf8" font-family="sans-serif" font-size="12">Telegram Bot</text>
+
+  <rect x="320" y="395" width="140" height="40" rx="6" fill="#334155" />
+  <text x="390" y="420" text-anchor="middle" fill="#4ade80" font-family="sans-serif" font-size="12">WhatsApp API</text>
+
+  <rect x="480" y="395" width="140" height="40" rx="6" fill="#334155" />
+  <text x="550" y="420" text-anchor="middle" fill="#fb923c" font-family="sans-serif" font-size="12">Cloudinary CDN</text>
+
+  <rect x="640" y="395" width="140" height="40" rx="6" fill="#334155" />
+  <text x="710" y="420" text-anchor="middle" fill="#f472b6" font-family="sans-serif" font-size="12">TipTopPay Billing</text>
+
+  <!-- Connectors to Integrations -->
+  <path d="M 450 360 L 450 380" stroke="#64748b" stroke-width="2" />
+</svg>

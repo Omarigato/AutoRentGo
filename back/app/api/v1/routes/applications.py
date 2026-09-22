@@ -102,7 +102,7 @@ async def create_application(
         models.Application.status == "ACTIVE"
     ).first()
     if existing:
-        return create_response(code=400, message=i18n.get(request.state.lang, "application_already_exists"), lang=request.state.lang)
+        return create_response(code=400, message_key="application_already_exists", lang=request.state.lang)
     req_dt = None
     if requested_at:
         try:

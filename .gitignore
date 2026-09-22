@@ -33,5 +33,14 @@ back/.pytest_cache/
 back/.coverage
 back/htmlcov/
 
+# Logs & Local DBs
+*.log
+**/*.log
+*.db
+**/*.db
+.pytest_cache/
+.coverage
+htmlcov/
+
 **/__pycache__/*
 __pycache__/

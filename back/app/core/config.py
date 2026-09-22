@@ -12,8 +12,8 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "production"
     API_V1_STR: str = "/api/v1"
 
-    # БД – PostgreSQL (ожидаем через переменную окружения)
-    SQLALCHEMY_DATABASE_URI: str
+    # БД – PostgreSQL (в production) или SQLite (по умолчанию для локальной разработки и тестов)
+    SQLALCHEMY_DATABASE_URI: str = "sqlite:///./autorentgo.db"
 
     # Supabase (для инициализации клиента)
     SUPABASE_URL: str | None = None
@@ -84,6 +84,11 @@ class Settings(BaseSettings):
         """
         if isinstance(v, str):
             return [origin.strip() for origin in v.split(",") if origin.strip()]
+    @field_validator("SQLALCHEMY_DATABASE_URI", mode="before")
+    @classmethod
+    def parse_db_uri(cls, v):
+        if not v or (isinstance(v, str) and not v.strip()):
+            return "sqlite:///./autorentgo.db"
         return v
 
     model_config = SettingsConfigDict(

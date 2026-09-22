@@ -42,3 +42,4 @@ class ApplicationResponse(BaseModel):
 
     class Config:
         from_attributes = True
+        protected_namespaces = ()

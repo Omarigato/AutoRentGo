@@ -1,11 +1,13 @@
 services:
+  # Database Service (PostgreSQL 16)
   db:
     image: postgres:16-alpine
     container_name: autorentgo_db
+    restart: unless-stopped
     environment:
-      - POSTGRES_USER=${POSTGRES_USER:-autorentgo}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-autorentgo123}
-      - POSTGRES_DB=${POSTGRES_DB:-autorentgo}
+      POSTGRES_USER: ${POSTGRES_USER:-autorentgo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-autorentgo_secret_password}
+      POSTGRES_DB: ${POSTGRES_DB:-autorentgo}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -13,47 +15,70 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+      start_period: 5s
     networks:
       - autorentgo_network
 
+  # Backend REST API Service (FastAPI)
   back:
-    build: ./back
+    build:
+      context: ./back
+      dockerfile: Dockerfile
     container_name: autorentgo_backend
+    restart: unless-stopped
     ports:
       - "${BACKEND_PORT:-8000}:${BACKEND_PORT:-8000}"
     env_file:
       - .env
     environment:
-      - SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER:-autorentgo}:${POSTGRES_PASSWORD:-autorentgo123}@db:5432/${POSTGRES_DB:-autorentgo}
+      - SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER:-autorentgo}:${POSTGRES_PASSWORD:-autorentgo_secret_password}@db:5432/${POSTGRES_DB:-autorentgo}
+      - HOST=0.0.0.0
+      - BACKEND_PORT=${BACKEND_PORT:-8000}
     command: sh -c "python -m app.init_db && uvicorn app.main:app --host 0.0.0.0 --port ${BACKEND_PORT:-8000}"
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:${BACKEND_PORT:-8000}/docs')\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    volumes:
+      - backend_uploads:/app/uploads
     networks:
       - autorentgo_network
 
+  # Frontend Client & Ingress Service (Next.js 14)
   front:
     build:
       context: ./front
+      dockerfile: Dockerfile
       args:
-        - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL:-/api/v1}
-        - API_BACKEND_URL=http://back:${BACKEND_PORT:-8000}
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-/api/v1}
+        API_BACKEND_URL: http://back:${BACKEND_PORT:-8000}
     container_name: autorentgo_frontend
+    restart: unless-stopped
     ports:
       - "3000:3000"
     env_file:
       - .env
     environment:
       - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL:-/api/v1}
-      - API_BACKEND_URL=http://back:8000
+      - API_BACKEND_URL=http://back:${BACKEND_PORT:-8000}
     depends_on:
-      - back
+      back:
+        condition: service_healthy
     networks:
       - autorentgo_network
 
 networks:
   autorentgo_network:
     driver: bridge
+    name: autorentgo_net
 
 volumes:
   postgres_data:
+    name: autorentgo_postgres_data
+  backend_uploads:
+    name: autorentgo_backend_uploads

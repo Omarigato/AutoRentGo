@@ -1,10 +1,12 @@
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class CarBase(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
+
     name: str
     marka_id: Optional[int] = None
     model_id: Optional[int] = None
